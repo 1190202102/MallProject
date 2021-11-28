@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<html>
+<head>
+	<meta charset="utf-8"> 
+	<title>Bootstrap 实例 - 水平表单</title>
+	<link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">  
+	<script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+	<script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script>
+
+    function getCookie(cname){
+    var name = cname + "=";
+    var ca = document.cookie.split(';');
+    for(var i=0; i<ca.length; i++) {
+        var c = ca[i].trim();
+        if (c.indexOf(name)==0) { return c.substring(name.length,c.length); }
+    }
+    return "";
+}
+
+    function getDate() {
+    var date = new Date();
+    var seperator1 = "-";
+    var seperator2 = " ";
+    var year = date.getFullYear();
+    var month = date.getMonth() + 1;
+    var strDate = date.getDate();
+    var hour = date.getHours();
+    var min = date.getMinutes();
+    var sec = date.getSeconds();
+    if (month >= 1 && month <= 9) {
+        month = "0" + month;
+    }
+    if (strDate >= 0 && strDate <= 9) {
+        strDate = "0" + strDate;
+    }
+    var currentdate = year + seperator1 + month +
+    seperator1 + strDate+seperator2 + hour + ":" + min + ":" +sec;
+    return currentdate;
+}
+
+    function sendMsg(){
+		var money = document.getElementById('money').value;
+		if(Number(money)>0){
+			_sendMsg();
+		}
+		else
+		alert('金额输入错误！');
+	}
+    function _sendMsg(){
+
+        var xhr = new XMLHttpRequest();
+    	xhr.onreadystatechange = function () {
+        	if(xhr.readyState === 4 && xhr.status === 200) {
+				var result = JSON.parse(xhr.responseText);
+				if(result.flag=='right') alert('转账成功');
+				else alert(result.flag);
+        	}
+    	}
+    	xhr.open('POST', 'transfer_money/', true);
+    	xhr.setRequestHeader('Content-Type', 'application/json;charset=utf-8');
+
+
+        var des_card_ID = document.getElementById('des_card_ID').value;
+        var money = document.getElementById('money').value;
+        var password = document.getElementById('password').value;
+        var time = getDate();
+        var token = getCookie('token');
+		var pwd_hash = CryptoJS.MD5(password).toString();
+        var result = {'des_card_ID':des_card_ID,'money':money,
+        'time':time, 'pwd':pwd_hash, 'token':token};
+        var result_str = JSON.stringify(result);
+		xhr.send(result_str);
+    }
+    </script>
+</head>
+<body>
+<div class="container">
+<br/>
+<br/>
+<h2 align="center">转账操作</h2>
+<br/>
+<br/>
+<form class="form-horizontal" role="form">
+	<div class="form-group">
+		<label for="firstname" class="col-sm-2 control-label">转入卡号</label>
+		<div class="col-sm-10">
+			<input type="text" class="form-control" id="des_card_ID" 
+            name="des_card_ID" value="" placeholder="请输入转入卡号">
+		</div>
+	</div>
+	<div class="form-group">
+		<label for="lastname" class="col-sm-2 control-label">转出金额</label>
+		<div class="col-sm-10">
+			<input type="text" class="form-control" id="money" 
+            name="money" value="" placeholder="请输入转出金额">
+		</div>
+	</div>
+    <div class="form-group">
+		<label for="lastname" class="col-sm-2 control-label">支付密码</label>
+		<div class="col-sm-10">
+			<input type="text" class="form-control" id="password" 
+			name="password" value="" placeholder="请输入支付密码">
+		</div>
+	</div>
+	<div class="form-group">
+		<div class="col-sm-offset-2 col-sm-10">
+			<button type="button" class="btn btn-default" onclick="sendMsg()">提交结果</button>
+		</div>
+	</div>
+</form>
+</div>
+</body>
+</html>
+{% endblock %}

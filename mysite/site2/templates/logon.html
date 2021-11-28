@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<body>
+
+<script>
+	window.onload = function(){
+	var message = "flag=true";
+        var xml = new XMLHttpRequest();
+        xml.open('post','send_certi/','true');
+        xml.setRequestHeader('content-type', 'application/x-www-form-urlencoded');
+        xml.send(message);
+        xml.onreadystatechange = function(){
+            if(xml.readyState==4){
+                var result = JSON.parse(xml.responseText);
+                certi = result.certi;
+
+                certi=certi.replace(/[\r\n]/g,"<br>");
+				setCookie('certi',certi);
+
+        }
+
+	}
+	}
+
+	function encryp(){
+		var certi = getCookie('certi');
+		certi=certi.replace(/<br>/g,"\r\n");
+		console.log(certi)
+
+		//var publickey = certUtils.getPublickey(certi);
+		certUtils.getPublickey(certi).then(publickey=>{
+		console.log(publickey);
+
+		var xhr = new XMLHttpRequest();
+    	xhr.onreadystatechange = function () {
+        	if(xhr.readyState === 4 && xhr.status === 200) {
+            var result = JSON.parse(xhr.responseText);
+				if(result.flag=='right') alert('success');
+				if(result.flag=='wrong') alert('already logon');
+        	}
+    	}
+    	xhr.open('POST', 'process_logon/', true);
+    	xhr.setRequestHeader('Content-Type', 'application/json;charset=utf-8');
+		var username = document.getElementById('username').value;
+		var password = document.getElementById('password').value;
+		var emali = document.getElementById('user_ID').value;
+		var phone = document.getElementById('phone').value;
+
+		password = CryptoJS.MD5(password).toString();
+
+		var result = {'username' : username, 'password' : password,
+		'emali' : emali, 'phone' : phone};
+
+		var result_str = JSON.stringify(result);
+		result_str = hybridUtils.encrypt(publickey, result_str);
+		console.log(result_str)
+
+		xhr.send(result_str);
+
+		})
+
+
+	}
+</script>
+    <link rel="stylesheet" href="{% static 'logon.css' %}">
+	<div id="login-box">
+		<h1>注册</h1>
+		<div class="form">
+			<div class="item">
+			   <i class="fa fa-github-alt" style="font-size:24px"></i>
+			   <input type="text" placeholder="Username" name="username" id="username" value="">
+			</div>
+			<div class="item">
+			   <i class="fa fa-search" style="font-size:24px"></i>
+			   <input type="text" placeholder="Password" name="password" id="password" value="">
+			</div>
+			<div class="item">
+			   <i class="fa fa-search" style="font-size:24px"></i>
+			   <input type="text" placeholder="user_ID" name="user_ID" id="user_ID" value="">
+			</div>
+			<div class="item">
+			   <i class="fa fa-search" style="font-size:24px"></i>
+			   <input type="text" placeholder="Phone" name="phone" id="phone" value="">
+			</div>
+		</div>
+		<!--button>注册</button-->
+		<button type="button" onclick="encryp()">注册</button>
+		<p>已有账号，直接登陆</p>
+	<a href="{% url 'login'%}">
+		<botton>直接登陆</botton>
+	</a>
+	</div>
+{% endblock %}
+
