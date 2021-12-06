@@ -8,7 +8,6 @@ import json
 import requests
 from . import  crypto
 from . import  jwt
-from skimage import io,data
 
 
 global hash_pwd
@@ -426,6 +425,8 @@ def send_prod_detail_info(request):
     #全部读出
     return HttpResponse(json.dumps({"data": result1}))
 
+
+
 def notfound(request):
     return render(request,'404.html',{})
 
@@ -436,7 +437,7 @@ def index(request):
     return render(request,'index.html',{})
 
 def login_mall(request):
-    return render(request,'login',{})
+    return render(request,'login.html',{})
 
 def register(request):
     return render(request,'register.html',{})
@@ -446,6 +447,20 @@ def shopcart(request):
 
 def tables(request):
     return render(request,'tables.html',{})
+
+def add_product(request):
+    return
+
+def personal_index(request):
+    db = mysql.connector.connect(
+        host=myconfig['host'],
+        user=myconfig['user'],
+        password=myconfig['pwd'],
+        db='online_mall',
+    )
+    prod_ID = request.POST.get('prod_ID')
+    cursor = db.cursor()
+    cursor.execute(f"select * from product_list where prod_ID=\'{prod_ID}\'")
 
 
 
