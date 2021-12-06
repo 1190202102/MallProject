@@ -8,7 +8,7 @@ import json
 import requests
 from . import  crypto
 from . import  jwt
-from skimage import io,data
+
 
 
 global hash_pwd
@@ -372,26 +372,6 @@ def transfer(request):
 def mall_home(request):
     return render(request, 'mall_home.html', {})
 
-def store_pro_info(request):
-    db = mysql.connector.connect(
-        host=myconfig['host'],
-        user=myconfig['user'],
-        password=myconfig['pwd'],
-        db='online_mall',
-    )
-    prod_ID = request.POST.get('pro_ID')
-    cursor = db.cursor()
-    cursor.execute(f"select * from product_list where prod_ID=\'{prod_ID}\'")
-    result=cursor.fetchall()
-    if (result==[]):#商品已经存在
-        return
-    else:#商品还没有加入
-        img = data.chelsea()
-        io.imshow(img)
-        io.imsave(f'../static/product_image/\'{prod_ID}\'.jpg', img)
-        return
-
-
 def send_prod_home_info(request):
     db = mysql.connector.connect(
         host=myconfig['host'],
@@ -436,7 +416,7 @@ def index(request):
     return render(request,'index.html',{})
 
 def login_mall(request):
-    return render(request,'login',{})
+    return render(request,'login.html',{})
 
 def register(request):
     return render(request,'register.html',{})
