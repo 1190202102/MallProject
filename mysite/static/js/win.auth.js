@@ -72,7 +72,7 @@ function sendMsg(){
 function certinit(){
 var message = "flag=true";
     var xml = new XMLHttpRequest();
-    xml.open('post','/send_certi','true');
+    xml.open('post','send_certi','true');
     xml.setRequestHeader('content-type', 'application/x-www-form-urlencoded');
     xml.send(message);
     xml.onreadystatechange = function(){
