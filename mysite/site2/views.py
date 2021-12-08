@@ -10,6 +10,7 @@ from . import  crypto
 from . import  jwt
 
 
+
 global hash_pwd
 global challenge
 
@@ -373,8 +374,6 @@ def mall_home(request):
 
 def store_pro_info(request):
     return
-
-
 def send_prod_home_info(request):
     db = mysql.connector.connect(
         host=myconfig['host'],
