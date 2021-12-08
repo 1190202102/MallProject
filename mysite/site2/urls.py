@@ -24,19 +24,12 @@ urlpatterns = [
     #下面是正确有用的页面
     # path('',views.login,name="login"),
     path('logon/',views.logon,name="logon"),
-    path('page1/',views.page1,name="page1"),
     path('process_login/',views.process_login,name="process_login"),
-    path('logon/process_logon/',views.process_logon,name="process_logon"),
+    path('register/process_logon/',views.process_logon,name="process_logon"),
     path('process/',views.process,name="process"),
-    path('logon/send_certi/',views.send_certi,name="send_certi"),
+    path('send_certi/',views.send_certi,name="send_certi"),
     path('hash_accept',views.hash_accept,name='hash_accept'),
     path('challenge_sender',views.challenge_sender,name='challenge_sender'),
-    path('account_info/',views.account_info,name='account_info'),
-    path('transfer/',views.transfer,name='transfer'),
-    path('transfer/transfer_money/',views.transfer_money,name='transfer_money'),
-    path('account_info/display_card_info/',views.display_card_info,name='display_card_info'),
-    ###
-
     path('',views.mall_home,name='mall_home'),
     path('display_products/',views.send_prod_home_info,name='display_products'),
     path('404/',views.notfound,name='notfound'),
@@ -49,6 +42,5 @@ urlpatterns = [
     path('goods',views.detail_goods,name='goods'),
     path('upload',views.upload,name='upload'),
     path('store_pro',views.store_pro,name='store_pro'),
-
-
 ]
+handler404 = 'site2.views.notfound'
