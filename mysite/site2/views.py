@@ -372,23 +372,7 @@ def mall_home(request):
     return render(request, 'mall_home.html', {})
 
 def store_pro_info(request):
-    db = mysql.connector.connect(
-        host=myconfig['host'],
-        user=myconfig['user'],
-        password=myconfig['pwd'],
-        db='online_mall',
-    )
-    prod_ID = request.POST.get('pro_ID')
-    cursor = db.cursor()
-    cursor.execute(f"select * from product_list where prod_ID=\'{prod_ID}\'")
-    result=cursor.fetchall()
-    if (result==[]):#商品已经存在
-        return
-    else:#商品还没有加入
-        img = data.chelsea()
-        io.imshow(img)
-        io.imsave(f'../static/product_image/\'{prod_ID}\'.jpg', img)
-        return
+    return
 
 
 def send_prod_home_info(request):
@@ -398,15 +382,12 @@ def send_prod_home_info(request):
         password=myconfig['pwd'],
         db='online_mall',
     )
-    info = json.loads(request.body)
-    page=info['seq']
     cursor = db.cursor()
-    start=(int(page)-1)*8
-    end=int(page)*8
-    qury=f"select * from product_list limit {start},{end};"
+    qury=f"select * from product_list;"
     cursor.execute(qury)
     result1 = cursor.fetchall()
     l=len(result1)
+    print(result1)
     #处理读出的数据需要主页信息即可，不用简介
     return HttpResponse(json.dumps({"num": l,"data": result1}))
 
@@ -461,6 +442,9 @@ def personal_index(request):
     prod_ID = request.POST.get('prod_ID')
     cursor = db.cursor()
     cursor.execute(f"select * from product_list where prod_ID=\'{prod_ID}\'")
+
+def detail_goods(request):
+    return render(request,'goods.html',{})
 
 
 
