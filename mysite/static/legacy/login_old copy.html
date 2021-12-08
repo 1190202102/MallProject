@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+    <link rel="stylesheet" href="{% static 'login.css' %}">
+
+	<div id="login-box">
+		<h1>登陆窗口</h1>
+		<p id ="p1"></p>
+		<form id="myform" action="##" onsubmit= "return false" method="post">
+			{% csrf_token %}
+		<div class="form">
+			<div class="item">
+			   <i class="fa fa-github-alt" style="font-size:24px"></i>
+			   <input type="text" placeholder="Username" name="username" id="username" value="" >
+			</div>
+			<div class="item">
+			   <i class="fa fa-search" style="font-size:24px"></i>
+			   <input type="text" placeholder="Password" name="password" id="password" value="" >
+			   <!--input type="hidden" name="key" id ="key" value=""-->
+			</div>
+		</div>
+	    </form>
+		<button type="button" onclick="sendMsg()">登陆</button>
+		<p>还没有注册吗？马上注册一个吧！</p>
+	<a href="{% url 'logon'%}">
+		<botton>注册</botton>
+	</a>
+	</div>
+
+
+{% endblock %}

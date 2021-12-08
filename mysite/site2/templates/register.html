@@ -38,37 +38,34 @@
                             </div>
                             <form class="user">
                                 <div class="form-group">
-                                        <input type="text" class="form-control form-control-user" id="exampleFirstName"
+                                        <input type="text" class="form-control form-control-user" id="username"
                                             placeholder="User Name">
                                 </div>
                                 <div class="form-group">
-                                    <input type="text" class="form-control form-control-user" id="exampleLastName"
+                                    <input type="text" class="form-control form-control-user" id="phone"
                                     placeholder="Phone">
                                 </div>    
                                 <div class="form-group">
-                                    <input type="text" class="form-control form-control-user" id="exampleInputEmail"
+                                    <input type="text" class="form-control form-control-user" id="user_ID"
                                         placeholder="ID number">
                                 </div>
                                 <div class="form-group row">
                                     <div class="col-sm-6 mb-3 mb-sm-0">
                                         <input type="password" class="form-control form-control-user"
-                                            id="exampleInputPassword" placeholder="Password">
+                                            id="password" placeholder="Password">
                                     </div>
                                     <div class="col-sm-6">
                                         <input type="password" class="form-control form-control-user"
-                                            id="exampleRepeatPassword" placeholder="Repeat Password">
+                                            id="rpassword" placeholder="Repeat Password">
                                     </div>
                                 </div>
-                                <a href="register.html" class="btn btn-primary btn-user btn-block">
+                                <a href="#" class="btn btn-primary btn-user btn-block" onclick="encryp()">
                                     Register Account
                                 </a>
                             </form>
                             <hr>
                             <div class="text-center">
-                                <a class="small" href="forgot-password.html">Forgot Password?</a>
-                            </div>
-                            <div class="text-center">
-                                <a class="small" href="../login">Already have an account? Login!</a>
+                                <a class="small" href="/login">Already have an account? Login!</a>
                             </div>
                         </div>
                     </div>
@@ -81,13 +78,14 @@
     <!-- Bootstrap core JavaScript-->
     <script src="{%static 'bs/vendor/jquery/jquery.min.js'%}"></script>
     <script src="{%static 'bs/vendor/bootstrap/js/bootstrap.bundle.min.js'%}"></script>
-
     <!-- Core plugin JavaScript-->
     <script src="{%static 'bs/vendor/jquery-easing/jquery.easing.min.js'%}"></script>
-
     <!-- Custom scripts for all pages-->
     <script src="{%static 'bs/js/sb-admin-2.min.js'%}"></script>
-
+    {% include 'base.html' %}
+    <script>
+        window.onload = certinit;
+    </script>
 </body>
 
 </html>

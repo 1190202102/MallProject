@@ -215,157 +215,6 @@ def process_logon(request):
         return HttpResponse(json.dumps({"flag": "right"}))
 
 
-def transfer_money(request):
-    db = mysql.connector.connect(
-        host=myconfig['host'],
-        user=myconfig['user'],
-        password=myconfig['pwd'],
-        db='bank_base',
-    )
-    cursor = db.cursor()
-    tag='pub_key'
-    cursor.execute(f"select valstr from perm where keystr=\'{tag}\'")
-    result = cursor.fetchall()
-    pub_key = result[0][0]
-
-    info = json.loads(request.body)
-
-    token=info['token']
-    print(token)
-
-    if (jwt.verfy_token(token,pub_key.encode())==False): #token验证失败
-        print("the token no")
-        return HttpResponse(json.dumps({"flag": "token fails"}))
-
-    else:
-        dict_token=jwt.explain_token(token)
-        src_card_ID = dict_token['card_ID']
-
-        cursor.execute(f"select hash_pwd from login where card_ID=\'{src_card_ID}\'")
-        result = cursor.fetchall()
-        hash_pwd = result[0][0]
-
-        print(info['pwd'])
-        print(hash_pwd)
-
-        if (hash_pwd!=info['pwd']):
-            return HttpResponse(json.dumps({"flag": "wrong"}))
-
-        des_card_ID = info['des_card_ID']
-        money = info['money']
-        deal_num = info['time']
-        print(deal_num)
-
-        cursor.execute(f"select money from account where card_ID=\'{src_card_ID}\'")
-        result = cursor.fetchall()
-        scr_money = result[0][0]
-
-        cursor.execute(f"select money from account where card_ID=\'{des_card_ID}\'")
-        result = cursor.fetchall()
-
-        if (result==[]): #没有这个卡
-            return HttpResponse(json.dumps({"flag": "no such card"}))
-
-        des_money = result[0][0]
-        scr_money = int(scr_money) - int(money)
-
-        if (scr_money<0):
-            return HttpResponse(json.dumps({"flag": "money is not enough"}))
-
-        scr_money=str(scr_money)
-
-        des_money = int(des_money) + int(money)
-        des_money=str(des_money)
-
-        cursor.execute(f"UPDATE account SET money = \'{scr_money}\' WHERE card_ID = \'{src_card_ID}\'")
-        cursor.execute(f"UPDATE account SET money = \'{des_money}\' WHERE card_ID = \'{des_card_ID}\'")
-        cursor.execute(
-            f"insert into deal (deal_num, sender_card_ID,receiver_card_ID,money) values (\'{deal_num}\',  \'{src_card_ID}\',\'{des_card_ID}\',\'{money}\')")
-        db.commit()
-        db.close
-        return HttpResponse(json.dumps({"flag": "right"}))
-
-def display_card_info(request):
-    db = mysql.connector.connect(
-        host=myconfig['host'],
-        user=myconfig['user'],
-        password=myconfig['pwd'],
-        db='bank_base',
-    )
-    cursor = db.cursor()
-
-    card_ID='6'
-    cursor.execute(f"select * from deal where sender_card_ID=\'{card_ID}\'")
-    result1 = cursor.fetchall()
-    print(json.dumps({"type1": result1}))
-
-
-    tag = 'pub_key'
-    cursor.execute(f"select valstr from perm where keystr=\'{tag}\'")
-    result = cursor.fetchall()
-    pub_key = result[0][0]
-
-    info = json.loads(request.body)
-    token = info['token']
-    print(token)
-    if (jwt.verfy_token(token,pub_key.encode())==False): #token验证失败
-        return HttpResponse(json.dumps({"flag": "wrong"}))
-
-    else:
-        dict_token = jwt.explain_token(token)
-        card_ID = dict_token['card_ID']
-
-        cursor.execute(f"select money from account where card_ID=\'{card_ID}\'")
-        result = cursor.fetchall()
-        money = result[0][0]
-        username = dict_token['user']
-
-        cursor.execute(f"select user_ID from login where card_ID=\'{card_ID}\'")
-        result = cursor.fetchall()
-        user_ID = result[0][0]
-
-        role = dict_token['role']
-
-        cursor.execute(f"select * from deal where sender_card_ID=\'{card_ID}\'")
-        result1 = cursor.fetchall()
-        num1= len(result1)
-        print(result1)
-
-        cursor.execute(f"select * from deal where receiver_card_ID=\'{card_ID}\'")
-        result2 = cursor.fetchall()
-        num2=len(result2)
-        print(result2)
-        return HttpResponse(json.dumps({"username": username,"role": role,"user_ID":user_ID,"card_ID":card_ID,"money":money,"num1":num1,"num2":num2,
-                                        "type1":result1,"type2":result2}))
-
-
-
-
-def page1(request):
-    return render(request, 'page1.html', {})
-
-def account_info(request):
-    db = mysql.connector.connect(
-        host=myconfig['host'],
-        user=myconfig['user'],
-        password=myconfig['pwd'],
-        db='bank_base',
-    )
-    cursor = db.cursor()
-    return render(request, 'dispaly.html', {})
-
-def transfer(request):
-    return render(request, 'transfer.html', {})
-
-    # token=''
-    # card=''
-    # query = f"select money from account where card_ID=\'{card}\'"
-    # cursor.execute(query)
-    # result = cursor.fetchall()
-    # money=result[0][0]
-    # return render(request, 'account_info.html', {})
-
-
 # 这部分目前剩下两个问题就解决
 # 1.注册信息填入到info_user中是否无误
 # 2.token填入和检测功能是否正常运行
@@ -408,8 +257,10 @@ def send_prod_detail_info(request):
 
 
 
-def notfound(request):
-    return render(request,'404.html',{})
+def notfound(request,exception,):
+    response = render(request,"404.html")
+    response.status_code = 404
+    return response
 
 def forgetpwd(request):
     return render(request,'forgot-password.html',{})
