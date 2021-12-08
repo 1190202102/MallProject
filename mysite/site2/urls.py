@@ -39,5 +39,6 @@ urlpatterns = [
     path('register/',views.register,name='register'),
     path('shopcart/',views.shopcart,name='shopcart'),
     path('tables/',views.tables,name='tables'),
+    path('goods',views.detail_goods,name='goods'),
 ]
 handler404 = 'site2.views.notfound'
