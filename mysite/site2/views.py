@@ -1,3 +1,4 @@
+from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.http import HttpResponse
 from django.shortcuts import render
 import mysql.connector
@@ -8,6 +9,7 @@ import json
 import requests
 from . import  crypto
 from . import  jwt
+from io import BytesIO
 
 
 
@@ -401,7 +403,6 @@ def send_prod_detail_info(request):
     cursor = db.cursor()
     cursor.execute(f"select * from product_list where prod_ID=\'{prod_ID}\'")
     result1 = cursor.fetchall()
-    print(result1)
     #全部读出
     return HttpResponse(json.dumps({"data": result1}))
 
@@ -444,6 +445,48 @@ def personal_index(request):
 
 def detail_goods(request):
     return render(request,'goods.html',{})
+
+def upload(request):
+    return render(request,'upload.html',{})
+
+def store_pro(request):
+    db = mysql.connector.connect(
+        host=myconfig['host'],
+        user=myconfig['user'],
+        password=myconfig['pwd'],
+        db='online_mall',
+    )
+    cursor = db.cursor()
+    cursor.execute("select count(*) from product_list")
+    result = cursor.fetchall()
+    line = result[0][0]
+    file_obj = request.FILES.get('pic')
+    print("line",line)
+    f1 = open('./static/product_image/'+str(line+1)+'.jpg', "wb")
+    for i in file_obj.chunks():
+        f1.write(i)
+    f1.close()
+
+    lines=str(line+1)
+    pri=request.POST.get('price')
+    info=request.POST.get('info')
+    name=request.POST.get('name')
+    categ='Small-sized'
+    cursor.execute(f"insert into product_list (prod_ID,prod_name,prod_price,prod_intro,prod_categ) values (\'{lines}\', \'{name}\', \'{pri}\', \'{info}\', \'{categ}\')")
+    db.commit()
+
+
+
+
+    return render(request, 'mall_home.html')
+
+
+
+
+
+
+
+
 
 
 
