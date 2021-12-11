@@ -36,7 +36,6 @@ function sendHash(challenge){
                 setCookie('token',res.token);
                 alert(document.cookie);
             　　 window.location.href="index";
-
             }
             if( res.resul == "wrong") alent("fail login in");
         }
