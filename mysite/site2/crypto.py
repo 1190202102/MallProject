@@ -184,6 +184,7 @@ def load_cert(pem_cert):
         0].value
     cert_dict['start_time'] = str(cert.not_valid_after)
     cert_dict['end_time'] = str(cert.not_valid_before)
+    cert_dict['pubkey']=cert.public_key().public_bytes(serialization.Encoding.PEM,serialization.PublicFormat.PKCS1)
     return cert_dict
 
 def parse_hybrid_token(token_json):

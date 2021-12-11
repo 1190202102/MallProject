@@ -35,7 +35,7 @@ function sendHash(challenge){
                 alert("success login in");
                 setCookie('token',res.token);
                 alert(document.cookie);
-            　　 window.location.href="http://127.0.0.1:8099/";
+            　　 window.location.href="index";
             }
             if( res.resul == "wrong") alent("fail login in");
         }

@@ -1,5 +1,14 @@
+// First,call init()
+// Second,call packToBusi()
 var setUtils={
-    init:function(PI,OI,client_prikey){
+    // paraPI and paraOI are Object, not JSON string
+    init:function(paraPI,paraOI,client_prikey){
+        PI=JSON.parse(paraPI)
+        OI=JSON.parse(paraOI)
+        PI['rnd']=Math.random();
+        OI['rnd']=Math.random();
+        PI=JSON.stringify(PI)
+        OI=JSON.stringify(OI)
         let PIMD=CryptoJS.SHA1(PI).toString(CryptoJS.enc.Hex);
         let OIMD=CryptoJS.SHA1(OI).toString(CryptoJS.enc.Hex);
         let POMD=CryptoJS.SHA1(PIMD+OIMD).toString(CryptoJS.enc.Hex);
@@ -29,5 +38,13 @@ var setUtils={
             PIMD:POdata.PIMD
         };
         return JSON.stringify(data);
+    },
+    packToBusi: function(POdata,pubkeyBank){
+        pack=JSON.parse(this.getBusiData(POdata))
+        pack.toBank=hybridUtils.encrypt(pubkeyBank,this.getBankData(POdata));
+        return JSON.stringify(pack)
     }
 }
+
+// Format of PI: amount,INaccount,OUTaccount
+// Format of OI: shopcart,clientID
