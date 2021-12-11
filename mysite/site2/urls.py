@@ -40,5 +40,7 @@ urlpatterns = [
     path('shopcart/',views.shopcart,name='shopcart'),
     path('tables/',views.tables,name='tables'),
     path('goods',views.detail_goods,name='goods'),
+    path('upload',views.upload,name='upload'),
+    path('store_pro',views.store_pro,name='store_pro'),
 ]
 handler404 = 'site2.views.notfound'
