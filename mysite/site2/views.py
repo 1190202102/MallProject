@@ -40,7 +40,7 @@ def hash_accept(request):
         host=myconfig['host'],
         user=myconfig['user'],
         password=myconfig['pwd'],
-        db='bank_base',
+        db='online_mall',
     )
     cursor = db.cursor()
     cursor.execute(f"select challenge from temp")
@@ -79,15 +79,14 @@ def hash_accept(request):
         print(result[0][0])
         role = result[0][0]
 
-        query = f"select card_ID from login where username=\'{username}\'"
+        query = f"select user_ID from login where username=\'{username}\'"
         print(query)
         cursor.execute(query)
         result = cursor.fetchall()
         print(result[0][0])
-        card_ID = result[0][0]
-        print('zhelizheli')
-        print(card_ID)
-        token = jwt.generate_token(username,card_ID, role, pri_key)
+        user_ID = result[0][0]
+
+        token = jwt.generate_token(username,user_ID, role, pri_key)
         print("this is token")
         print(token)
         return HttpResponse(json.dumps({"resul" : "right","token":token}))
@@ -99,7 +98,7 @@ def challenge_sender(request):
         host=myconfig['host'],
         user=myconfig['user'],
         password=myconfig['pwd'],
-        db='bank_base',
+        db='online_mall',
     )
     cursor = db.cursor()
     challenge = hex(random.randint(0, 2 ** 64))
@@ -142,9 +141,9 @@ def send_certi(request):
         host=myconfig['host'],
         user=myconfig['user'],
         password=myconfig['pwd'],
-        db='bank_base',
+        db='online_mall',
     )
-    tag = "bank_certi"
+    tag = "mall_certi"
     cursor = db.cursor()
     cursor.execute(f"select valstr from perm where keystr=\'{tag}\'")
     result = cursor.fetchall()
@@ -157,23 +156,22 @@ def push_user_info(text):
         host=myconfig['host'],
         user=myconfig['user'],
         password=myconfig['pwd'],
-        db='bank_base',
+        db='online_mall',
     )
     cursor = db.cursor()
     cursor.execute("select count(*) from login")
     result = cursor.fetchall()
-    line = result[0][0]
-    card_ID=str(line)
+
     text=eval(text)
     user_ID=text['emali']
     print(user_ID)
     hash_pwd=text['password']
     username=text['username']
     role='user'
-    cursor.execute(f"insert into login (card_ID,username,hash_pwd,user_ID,role) values (\'{card_ID}\', \'{username}\', \'{hash_pwd}\', \'{user_ID}\', \'{role}\')")
-    db.commit()
-    money=1000
-    cursor.execute(f"insert into account (card_ID,money) values (\'{card_ID}\',  \'{money}\')")
+    dict={}
+    dict_json=json.dumps(dict)
+    cursor.execute(f"insert into login (username,hash_pwd,user_ID,role) values (\'{username}\', \'{hash_pwd}\', \'{user_ID}\', \'{role}\')")
+    cursor.execute(f"insert into cart (owner,cart_info) values (\'{username}\',\'{dict}\')")
     db.commit()
 
     db.close
@@ -184,7 +182,7 @@ def process_logon(request):
         host=myconfig['host'],
         user=myconfig['user'],
         password=myconfig['pwd'],
-        db='bank_base',
+        db='online_mall',
     )
     cursor = db.cursor()
     name="pri_key"
@@ -325,16 +323,77 @@ def store_pro(request):
     categ='Small-sized'
     cursor.execute(f"insert into product_list (prod_ID,prod_name,prod_price,prod_intro,prod_categ) values (\'{lines}\', \'{name}\', \'{pri}\', \'{info}\', \'{categ}\')")
     db.commit()
-
-
-
-
     return render(request, 'mall_home.html')
 
+def add_cart(request):
+    db = mysql.connector.connect(
+        host=myconfig['host'],
+        user=myconfig['user'],
+        password=myconfig['pwd'],
+        db='online_mall',
+    )
 
+    cursor = db.cursor()
+    tag = 'pub_key'
+    cursor.execute(f"select valstr from perm where keystr=\'{tag}\'")
+    result = cursor.fetchall()
+    pub_key = result[0][0]
 
+    info = json.loads(request.body)
+    token = info['token']
+    print(token)
+    if (jwt.verfy_token(token, pub_key.encode()) == False):  # token验证失败
+        return HttpResponse(json.dumps({"flag": "token wrong"}))
+    else:
+        dict_token = jwt.explain_token(token)
+        owner_name=dict_token['name']  ####这里的键值有问题可能
+        pro_id=info['id']
+        pro_num=info['num']
 
+        cursor.execute(f"select * from cart where owner=\'{owner_name}\'")
+        result=cursor.fetchall()
+        cart=result[0][0]
+        cart_dict=json.loads(cart)
+        if (cart_dict.has_key(pro_id)==True):
+            num=cart_dict.get(pro_id)
+            num=num+pro_num
+            if (num<0):
+                return HttpResponse(json.dumps({"flag": '购物出操作有误'}))
+            else:
+                cart_dict[pro_id]=num
+                cart=json.dumps(cart_dict)
+                cursor.execute(f"update cart set cart_info='\{cart}'\ where owner=\'{owner_name}\'")
+                return HttpResponse(json.dumps({"flag": cart}))
+        else:
+            cart_dict={pro_id:pro_num}
+            cursor.execute(f"update cart set cart_info='\{cart}'\ where owner=\'{owner_name}\'")
+            return HttpResponse(json.dumps({"flag": cart}))
 
+def read_cart(request):
+    db = mysql.connector.connect(
+        host=myconfig['host'],
+        user=myconfig['user'],
+        password=myconfig['pwd'],
+        db='online_mall',
+    )
+    cursor = db.cursor()
+    tag = 'pub_key'
+    cursor.execute(f"select valstr from perm where keystr=\'{tag}\'")
+    result = cursor.fetchall()
+    pub_key = result[0][0]
+
+    info = json.loads(request.body)
+    token = info['token']
+    print(token)
+    if (jwt.verfy_token(token, pub_key.encode()) == False):  # token验证失败
+        return HttpResponse(json.dumps({"flag": "token wrong"}))
+    else:
+        dict_token = jwt.explain_token(token)
+        owner_name = dict_token['name']  ####这里的键值有问题可能
+        cursor.execute(f"select cart_info from cart where owner=\'{owner_name}\'")
+        result=cursor.fetchall()
+        cart=result[0][0]
+        return HttpResponse(json.dumps({"flag": cart}))
 
 
 
